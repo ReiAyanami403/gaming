@@ -14,6 +14,11 @@
             --muted: #9da7b3;
             --accent: #2ea043;
             --accent-2: #238636;
+            --touch-surface: rgba(8, 12, 18, 0.92);
+            --touch-button: rgba(33, 42, 54, 0.92);
+            --touch-button-active: #42576b;
+            --touch-action: #b64652;
+            --touch-action-active: #d65c68;
             --app-gap: clamp(12px, 2vw, 20px);
             --panel-width: min(100%, 1120px);
         }
@@ -61,6 +66,15 @@
             align-items: center;
             justify-content: center;
         }
+        .screen-stack {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--app-gap);
+        }
         #gba-container {
             width: min(100%, calc((100dvh - 220px) * 1.5));
             max-width: 100%;
@@ -72,6 +86,90 @@
             overflow: hidden;
             box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
             position: relative;
+        }
+        .touch-ui {
+            width: min(100%, 760px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0)),
+                var(--touch-surface);
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+            touch-action: none;
+        }
+        .touch-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 14px;
+            align-items: center;
+        }
+        .touch-dpad {
+            width: min(58vw, 260px);
+            aspect-ratio: 1;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .touch-face {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(74px, 110px));
+            grid-template-rows: repeat(2, minmax(74px, 110px));
+            justify-content: center;
+            align-content: center;
+            gap: 16px 18px;
+            min-height: 0;
+        }
+        .touch-meta {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .touch-btn {
+            appearance: none;
+            border: none;
+            border-radius: 18px;
+            min-height: 52px;
+            padding: 0 14px;
+            font: 700 15px/1 sans-serif;
+            color: var(--text);
+            background: var(--touch-button);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .touch-btn[data-role="action"] {
+            background: rgba(45, 57, 72, 0.96);
+        }
+        .touch-btn[data-role="face"] {
+            background: radial-gradient(circle at 30% 30%, #d5606c, var(--touch-action));
+            border-radius: 999px;
+            min-height: 84px;
+            min-width: 84px;
+            font-size: 28px;
+        }
+        .touch-btn[data-role="shoulder"],
+        .touch-btn[data-role="meta"] {
+            border-radius: 999px;
+        }
+        .touch-btn.is-active,
+        .touch-btn:active {
+            transform: scale(0.97);
+            background: var(--touch-button-active);
+        }
+        .touch-btn[data-role="face"].is-active,
+        .touch-btn[data-role="face"]:active {
+            background: radial-gradient(circle at 30% 30%, #eb7682, var(--touch-action-active));
+        }
+        .touch-spacer {
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
         }
         .fps-counter {
             position: absolute;
@@ -157,23 +255,37 @@
         }
         body.app-fullscreen .layout {
             width: 100%;
-            height: 100%;
-            display: flex;
+            min-height: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
             align-items: center;
-            justify-content: center;
+            justify-items: center;
         }
         body.app-fullscreen .screen-panel {
             width: 100%;
             height: 100%;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        body.app-fullscreen .screen-stack {
+            justify-content: center;
+            width: min(100%, 900px);
+            margin: 0 auto;
         }
         body.app-fullscreen #gba-container {
-            width: min(100vw, calc(100dvh * 1.5));
-            height: min(100dvh, calc(100vw / 1.5));
-            max-width: 100vw;
-            max-height: 100dvh;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
+            width: min(100%, calc((100dvh - 320px) * 1.5));
+            height: auto;
+            max-width: 100%;
+            max-height: min(52dvh, calc(100vw / 1.5));
+            aspect-ratio: 3 / 2;
+            border: 2px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 16px 42px rgba(0, 0, 0, 0.34);
+        }
+        body.app-fullscreen .touch-ui {
+            width: min(100%, 900px);
+            margin: 0 auto;
         }
         @media (max-width: 760px) {
             .layout {
@@ -183,6 +295,71 @@
                 width: 100%;
                 max-height: min(58dvh, calc(100vw / 1.5));
             }
+            .touch-grid {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 12px;
+            }
+            .touch-face {
+                grid-template-columns: repeat(2, minmax(68px, 96px));
+                grid-template-rows: repeat(2, minmax(68px, 96px));
+                gap: 14px;
+            }
+            .touch-meta {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+            body.app-fullscreen .shell {
+                padding: 10px;
+            }
+            body.app-fullscreen #gba-container {
+                width: min(100%, calc((100dvh - 300px) * 1.5));
+                max-height: min(46dvh, calc(100vw / 1.5));
+            }
+        }
+        @media (max-width: 560px) {
+            .touch-ui {
+                padding: 10px;
+                gap: 10px;
+                border-radius: 14px;
+            }
+            .touch-btn {
+                min-height: 46px;
+                padding: 0 10px;
+                font-size: 14px;
+            }
+            .touch-btn[data-role="face"] {
+                min-height: 72px;
+                min-width: 72px;
+                font-size: 24px;
+            }
+            .touch-dpad {
+                width: min(52vw, 220px);
+                gap: 6px;
+            }
+            body.app-fullscreen .screen-stack {
+                gap: 10px;
+            }
+            body.app-fullscreen #gba-container {
+                max-height: min(42dvh, calc(100vw / 1.5));
+            }
+        }
+        @media (orientation: landscape) and (max-height: 560px) {
+            body.app-fullscreen .shell {
+                padding: 8px;
+            }
+            body.app-fullscreen .screen-stack {
+                gap: 8px;
+            }
+            body.app-fullscreen #gba-container {
+                width: min(100%, calc((100dvh - 210px) * 1.5));
+                max-height: min(48dvh, calc(100vw / 1.5));
+            }
+            .touch-ui {
+                gap: 8px;
+                padding: 10px;
+            }
+            .touch-meta {
+                gap: 8px;
+            }
         }
     </style>
 </head>
@@ -190,16 +367,42 @@
     <main class="shell">
         <div class="layout">
             <section class="screen-panel">
-                <div id="gba-container"></div>
+                <div class="screen-stack">
+                    <div id="gba-container"></div>
+                    <section class="touch-ui" aria-label="Touch controls">
+                        <div class="touch-grid">
+                            <div class="touch-dpad">
+                                <div class="touch-spacer"></div>
+                                <button class="touch-btn" type="button" data-gba-key="6" data-role="dpad" aria-label="Up">▲</button>
+                                <div class="touch-spacer"></div>
+                                <button class="touch-btn" type="button" data-gba-key="5" data-role="dpad" aria-label="Left">◀</button>
+                                <div class="touch-spacer"></div>
+                                <button class="touch-btn" type="button" data-gba-key="4" data-role="dpad" aria-label="Right">▶</button>
+                                <div class="touch-spacer"></div>
+                                <button class="touch-btn" type="button" data-gba-key="7" data-role="dpad" aria-label="Down">▼</button>
+                                <div class="touch-spacer"></div>
+                            </div>
+                            <div class="touch-face">
+                                <button class="touch-btn" type="button" data-gba-key="9" data-role="shoulder">R</button>
+                                <button class="touch-btn" type="button" data-gba-key="8" data-role="shoulder">L</button>
+                                <button class="touch-btn" type="button" data-gba-key="1" data-role="face">B</button>
+                                <button class="touch-btn" type="button" data-gba-key="0" data-role="face">A</button>
+                            </div>
+                        </div>
+                        <div class="touch-meta">
+                            <button class="touch-btn" type="button" data-gba-key="2" data-role="meta">Select</button>
+                            <button class="touch-btn" type="button" data-gba-key="3" data-role="meta">Start</button>
+                            <button class="touch-btn" type="button" data-action="pause" data-role="meta">Pause</button>
+                            <button class="touch-btn" type="button" data-action="reset" data-role="meta">Reset</button>
+                        </div>
+                    </section>
+                </div>
             </section>
             <section class="panel">
                 <div class="row">
                     <button id="pause-btn" class="btn btn-secondary" type="button">Pause</button>
                     <button id="resume-btn" class="btn btn-secondary" type="button">Resume</button>
                     <button id="reset-btn" class="btn btn-secondary" type="button">Reset</button>
-                    <button id="save-btn" class="btn btn-secondary" type="button">Save</button>
-                    <button id="load-btn" class="btn btn-secondary" type="button">Load</button>
-                    <button id="fullscreen-btn" class="btn btn-secondary" type="button">Fullscreen</button>
                 </div>
                 <div id="status" class="status">Loading emulator...</div>
                 <p class="hint">Keyboard: A = X, B = Z, Start = Enter, Select = Left Shift, D-Pad = Arrow keys, L = A, R = S.</p>
@@ -27837,6 +28040,7 @@ GfxGlueCode.prototype.processSmoothing = function () {
     var DEFAULT_EMULATION_SPEED = 1;
     var TURBO_EMULATION_SPEED = IS_LOW_POWER_DEVICE ? 1.5 : 2.5;
     var SAVE_STORAGE_PREFIX = "gba-save:";
+    var IS_TOUCH_DEVICE = ("ontouchstart" in window) || ((navigator.maxTouchPoints || 0) > 0) || ((navigator.msMaxTouchPoints || 0) > 0);
     var VERTEX_SHADER_SOURCE =
         "attribute vec2 a_position;" +
         "attribute vec2 a_texCoord;" +
@@ -27883,6 +28087,8 @@ GfxGlueCode.prototype.processSmoothing = function () {
     var pendingSaveImport = null;
     var forcedFullscreen = true;
     var performanceMode = false;
+    var audioMixer = null;
+    var audioUnlockBound = false;
     var fpsNode = null;
     var fpsFrameCount = 0;
     var fpsWindowStart = 0;
@@ -27912,43 +28118,6 @@ GfxGlueCode.prototype.processSmoothing = function () {
             }
             this.dynamicSpeedRefresh = false;
         };
-
-        if (IS_LOW_POWER_DEVICE) {
-            GameBoyAdvanceEmulator.prototype.enableAudio = function () {
-                this.audioFound = 0;
-            };
-
-            GameBoyAdvanceEmulator.prototype.disableAudio = function () {
-                this.audioFound = 0;
-            };
-
-            GameBoyAdvanceEmulator.prototype.reinitializeAudio = function () {
-                this.audioFound = 0;
-            };
-
-            GameBoyAdvanceEmulator.prototype.initializeAudioLogic = function () {
-                this.audioResamplerFirstPassFactor = 1;
-                this.audioDownSampleInputDivider = 1;
-                this.audioDestinationPosition = 0;
-                this.audioBufferContainAmount = 0;
-                this.audioBufferOverclockBlockAmount = 0;
-                this.audioBufferDynamicContainAmount = 0;
-                this.audioBuffer = getFloat32Array(4);
-                this.audioUpdateState = 0;
-            };
-
-            GameBoyAdvanceEmulator.prototype.outputAudio = function () {};
-
-            GameBoyAdvanceEmulator.prototype.submitAudioBuffer = function () {
-                this.audioDestinationPosition = 0;
-            };
-
-            GameBoyAdvanceEmulator.prototype.audioPushNewState = function () {
-                this.audioUpdateState = 0;
-            };
-
-            GameBoyAdvanceEmulator.prototype.setBufferSpace = function () {};
-        }
 
         GameBoyAdvanceEmulator.prototype.audioUnderrunAdjustment = function () {
             this.CPUCyclesTotal = this.CPUCyclesPerIteration | 0;
@@ -28098,6 +28267,183 @@ GfxGlueCode.prototype.processSmoothing = function () {
             updateFPSCounter();
         }
     };
+
+    function BrowserAudioMixer() {
+        this.context = null;
+        this.processor = null;
+        this.gainNode = null;
+        this.channelCount = 2;
+        this.inputSampleRate = 44100;
+        this.outputSampleRate = 44100;
+        this.bufferSamples = 4096;
+        this.frameCapacity = 1 << 15;
+        this.ringBuffer = new Float32Array(this.frameCapacity << 1);
+        this.frameMask = (this.frameCapacity - 1) | 0;
+        this.writeFrameIndex = 0;
+        this.readFrameIndex = 0;
+        this.readFrameFraction = 0;
+        this.queuedFrames = 0;
+        this.sourceFramesPerOutputFrame = 1;
+        this.lastLeft = 0;
+        this.lastRight = 0;
+        this.started = false;
+    }
+
+    BrowserAudioMixer.prototype.initialize = function (channelCount, sampleRate, bufferSamples, onSuccess, onFailure, onFatalError) {
+        this.channelCount = Math.max(channelCount | 0, 2);
+        this.inputSampleRate = Math.max(sampleRate | 0, 22050);
+        this.bufferSamples = Math.max(bufferSamples | 0, 4096);
+        this.onFatalError = typeof onFatalError === "function" ? onFatalError : function () {};
+        try {
+            if (!this.context) {
+                var AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextCtor) {
+                    throw new Error("Web Audio is unavailable.");
+                }
+                this.context = new AudioContextCtor({
+                    latencyHint: "playback"
+                });
+            }
+            this.outputSampleRate = Math.max(this.context.sampleRate | 0, 22050);
+            this.sourceFramesPerOutputFrame = this.inputSampleRate / this.outputSampleRate;
+            if (!this.processor) {
+                this.processor = this.context.createScriptProcessor(4096, 0, this.channelCount);
+                this.gainNode = this.context.createGain();
+                this.gainNode.gain.value = 0.75;
+                this.processor.onaudioprocess = this.handleAudioProcess.bind(this);
+                this.processor.connect(this.gainNode);
+                this.gainNode.connect(this.context.destination);
+            }
+            if (typeof onSuccess === "function") {
+                onSuccess();
+            }
+        }
+        catch (error) {
+            if (typeof onFailure === "function") {
+                onFailure(error);
+            }
+        }
+    };
+
+    BrowserAudioMixer.prototype.handleAudioProcess = function (event) {
+        var outputBuffer = event.outputBuffer;
+        var left = outputBuffer.getChannelData(0);
+        var right = outputBuffer.getChannelData(Math.min(1, outputBuffer.numberOfChannels - 1));
+        var framesNeeded = left.length;
+        var sampleIndex = 0;
+        while (sampleIndex < framesNeeded) {
+            if ((this.queuedFrames | 0) >= 2) {
+                var frame0 = this.readFrameIndex & this.frameMask;
+                var frame1 = (this.readFrameIndex + 1) & this.frameMask;
+                var base0 = frame0 << 1;
+                var base1 = frame1 << 1;
+                var mix = +this.readFrameFraction;
+                var invMix = 1 - mix;
+                left[sampleIndex] = (this.ringBuffer[base0] * invMix) + (this.ringBuffer[base1] * mix);
+                right[sampleIndex] = (this.ringBuffer[base0 + 1] * invMix) + (this.ringBuffer[base1 + 1] * mix);
+                this.lastLeft = left[sampleIndex];
+                this.lastRight = right[sampleIndex];
+                this.readFrameFraction += this.sourceFramesPerOutputFrame;
+                while (this.readFrameFraction >= 1 && (this.queuedFrames | 0) > 1) {
+                    this.readFrameFraction -= 1;
+                    this.readFrameIndex = (this.readFrameIndex + 1) & this.frameMask;
+                    this.queuedFrames = (this.queuedFrames - 1) | 0;
+                }
+            }
+            else {
+                // Hold the last sample during underruns to avoid hard discontinuities.
+                left[sampleIndex] = this.lastLeft * 0.995;
+                right[sampleIndex] = this.lastRight * 0.995;
+                this.lastLeft = left[sampleIndex];
+                this.lastRight = right[sampleIndex];
+            }
+            sampleIndex++;
+        }
+    };
+
+    BrowserAudioMixer.prototype.push = function (buffer, offset, length) {
+        offset = offset | 0;
+        length = length | 0;
+        var end = (offset + length) | 0;
+        var index = offset;
+        var incomingFrames = Math.max((length >> 1) | 0, 0) | 0;
+        if ((incomingFrames | 0) >= (this.frameCapacity | 0)) {
+            index = (end - (this.frameCapacity << 1)) | 0;
+            incomingFrames = this.frameCapacity | 0;
+        }
+        if (((this.queuedFrames | 0) + (incomingFrames | 0)) > (this.frameCapacity | 0)) {
+            var framesToDrop = (((this.queuedFrames | 0) + (incomingFrames | 0)) - (this.frameCapacity | 0)) | 0;
+            this.readFrameIndex = (this.readFrameIndex + framesToDrop) & this.frameMask;
+            this.readFrameFraction = 0;
+            this.queuedFrames = ((this.queuedFrames | 0) - framesToDrop) | 0;
+        }
+        for (; index < end; index += 2) {
+            var base = (this.writeFrameIndex & this.frameMask) << 1;
+            this.ringBuffer[base] = +buffer[index];
+            this.ringBuffer[base + 1] = +buffer[Math.min(index + 1, end - 1)];
+            this.writeFrameIndex = (this.writeFrameIndex + 1) & this.frameMask;
+        }
+        this.queuedFrames = Math.min(((this.queuedFrames | 0) + (incomingFrames | 0)) | 0, this.frameCapacity | 0) | 0;
+    };
+
+    BrowserAudioMixer.prototype.register = function () {
+        this.started = true;
+    };
+
+    BrowserAudioMixer.prototype.unregister = function () {
+        this.started = false;
+    };
+
+    BrowserAudioMixer.prototype.remainingBuffer = function () {
+        return (this.queuedFrames << 1) | 0;
+    };
+
+    BrowserAudioMixer.prototype.setBufferSpace = function (bufferLimit) {
+        var targetFrames = Math.max(((bufferLimit | 0) >> 1) | 0, 0) | 0;
+        while ((this.queuedFrames | 0) < (targetFrames | 0)) {
+            var base = (this.writeFrameIndex & this.frameMask) << 1;
+            this.ringBuffer[base] = 0;
+            this.ringBuffer[base + 1] = 0;
+            this.writeFrameIndex = (this.writeFrameIndex + 1) & this.frameMask;
+            this.queuedFrames = (this.queuedFrames + 1) | 0;
+        }
+    };
+
+    BrowserAudioMixer.prototype.resume = function () {
+        if (!this.context) {
+            return Promise.resolve();
+        }
+        return this.context.resume();
+    };
+
+    function ensureAudioMixer() {
+        if (!audioMixer) {
+            audioMixer = new BrowserAudioMixer();
+        }
+        return audioMixer;
+    }
+
+    function unlockAudio() {
+        var mixer = ensureAudioMixer();
+        return mixer.resume().then(function () {
+            if (emulator) {
+                emulator.enableAudio();
+                emulator.setBufferSpace();
+            }
+        }).catch(function () {});
+    }
+
+    function bindAudioUnlock() {
+        if (audioUnlockBound) {
+            return;
+        }
+        audioUnlockBound = true;
+        var unlock = function () {
+            unlockAudio();
+        };
+        document.addEventListener("pointerdown", unlock, { passive: true });
+        document.addEventListener("keydown", unlock);
+    }
 
     WebGLFrameBlitter.prototype.resize = function () {
         var width = 0;
@@ -28422,6 +28768,87 @@ GfxGlueCode.prototype.processSmoothing = function () {
         });
     }
 
+    function bindTouchControlButton(button) {
+        var gbaKey = button.getAttribute("data-gba-key");
+        var action = button.getAttribute("data-action");
+        var activePointers = Object.create(null);
+
+        function setActive(active) {
+            button.classList.toggle("is-active", !!active);
+        }
+
+        function releaseAll() {
+            var hadPointers = false;
+            var pointerId;
+            for (pointerId in activePointers) {
+                if (Object.prototype.hasOwnProperty.call(activePointers, pointerId)) {
+                    hadPointers = true;
+                    delete activePointers[pointerId];
+                }
+            }
+            setActive(false);
+            if (gbaKey !== null && gbaKey !== "" && hadPointers) {
+                setButtonState(gbaKey | 0, false);
+            }
+        }
+
+        button.addEventListener("pointerdown", function (event) {
+            event.preventDefault();
+            if (button.setPointerCapture) {
+                button.setPointerCapture(event.pointerId);
+            }
+            activePointers[event.pointerId] = true;
+            setActive(true);
+            unlockAudio();
+            if (gbaKey !== null && gbaKey !== "") {
+                setButtonState(gbaKey | 0, true);
+                return;
+            }
+            if (action === "pause") {
+                pause();
+            }
+            else if (action === "reset") {
+                reset();
+            }
+            else if (action === "save") {
+                persistCurrentSave(true);
+            }
+            else if (action === "load") {
+                loadCurrentSave(true);
+            }
+            else if (action === "fullscreen") {
+                toggleFullscreen();
+            }
+        });
+
+        button.addEventListener("pointerup", function (event) {
+            if (button.releasePointerCapture && button.hasPointerCapture && button.hasPointerCapture(event.pointerId)) {
+                button.releasePointerCapture(event.pointerId);
+            }
+            delete activePointers[event.pointerId];
+            if (!Object.keys(activePointers).length) {
+                setActive(false);
+                if (gbaKey !== null && gbaKey !== "") {
+                    setButtonState(gbaKey | 0, false);
+                }
+            }
+        });
+
+        button.addEventListener("pointercancel", releaseAll);
+        button.addEventListener("lostpointercapture", releaseAll);
+        button.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+        });
+    }
+
+    function bindTouchControls() {
+        var buttons = document.querySelectorAll(".touch-btn");
+        var i = 0;
+        for (; i < buttons.length; i++) {
+            bindTouchControlButton(buttons[i]);
+        }
+    }
+
     function ensureCanvas(containerId) {
         var container = document.getElementById(containerId);
         if (!container) {
@@ -28655,6 +29082,7 @@ GfxGlueCode.prototype.processSmoothing = function () {
         emulator.toggleOffthreadGraphics(IS_LOW_POWER_DEVICE);
         emulator.setSpeed(turboActive ? TURBO_EMULATION_SPEED : DEFAULT_EMULATION_SPEED);
         emulator.setIntervalRate(performanceMode && IS_LOW_POWER_DEVICE ? 24 : (turboActive ? TURBO_TIMER_RATE_MS : TIMER_RATE_MS));
+        emulator.attachAudioHandler(ensureAudioMixer());
         emulator.attachSaveImportHandler(saveImportHandler);
         emulator.attachSaveExportHandler(saveExportHandler);
         emulator.attachSpeedHandler(function (speed) {
@@ -28705,6 +29133,8 @@ GfxGlueCode.prototype.processSmoothing = function () {
         attachCore(containerId);
         emulator.attachBIOS(pendingBIOS);
         emulator.attachROM(pendingROM);
+        emulator.enableAudio();
+        emulator.setBufferSpace();
         emulator.play();
         startTimer();
     }
@@ -28758,10 +29188,14 @@ GfxGlueCode.prototype.processSmoothing = function () {
     function initUI() {
         statusNode = document.getElementById("status");
         patchCoreForUltraMode();
+        if (IS_TOUCH_DEVICE) {
+            document.body.classList.add("touch-device");
+        }
         if (isSwitchBrowser) {
             document.body.className += (document.body.className ? " " : "") + "switch-browser";
         }
         bindKeyboard();
+        bindTouchControls();
         if (!IS_LOW_POWER_DEVICE) {
             startGamepadLoop();
         }
@@ -28769,17 +29203,11 @@ GfxGlueCode.prototype.processSmoothing = function () {
         window.addEventListener("gamepadconnected", function () {
             startGamepadLoop();
         });
+        bindAudioUnlock();
 
         document.getElementById("pause-btn").addEventListener("click", pause);
         document.getElementById("resume-btn").addEventListener("click", resume);
         document.getElementById("reset-btn").addEventListener("click", reset);
-        document.getElementById("save-btn").addEventListener("click", function () {
-            persistCurrentSave(true);
-        });
-        document.getElementById("load-btn").addEventListener("click", function () {
-            loadCurrentSave(true);
-        });
-        document.getElementById("fullscreen-btn").addEventListener("click", toggleFullscreen);
 
         window.addEventListener("resize", syncViewport);
         document.addEventListener("fullscreenchange", applyFullscreenState);
@@ -28792,7 +29220,7 @@ GfxGlueCode.prototype.processSmoothing = function () {
             if (!pendingBIOS.length || !pendingROM.length) {
                 throw new Error("Bundled BIOS or ROM data is missing.");
             }
-            setStatus(IS_LOW_POWER_DEVICE ? "Low-power mode active. Auto-loaded bundled emerald.gba." : "Auto-loaded bundled emerald.gba.");
+            setStatus(IS_LOW_POWER_DEVICE ? "Low-power mode active. Auto-loaded bundled emerald.gba. Tap or press a key to unlock audio." : "Auto-loaded bundled emerald.gba. Click or press a key to unlock audio.");
             boot("gba-container");
         }
         catch (error) {
